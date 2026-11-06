@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>AJE × Free · Inicio</title>
+<meta name="theme-color" content="#3b47e0">
+<meta name="robots" content="noindex">
+<link rel="icon" href="img/aje.png" type="image/png">
+<link rel="apple-touch-icon" href="img/aje.png">
+<style>
+  :root{--accent:#3b47e0;--navy:#0b1f4d;--ink2:#4a5275;--muted:#8a90ab;--line:#e1e4f3;--green:#2e9e45}
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:#f3f4fb;color:var(--navy);min-height:100vh;
+       display:flex;flex-direction:column;align-items:center;padding:24px 16px calc(24px + env(safe-area-inset-bottom))}
+  .box{width:100%;max-width:440px;background:#fff;border-radius:22px;overflow:hidden;box-shadow:0 10px 40px rgba(11,31,77,.12)}
+  .top{background:var(--accent);color:#fff;padding:26px 24px 24px;position:relative;overflow:hidden}
+  .top::before{content:"";position:absolute;right:-40px;top:-50px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.1)}
+  .top::after{content:"";position:absolute;right:80px;bottom:-24px;width:50px;height:50px;border-radius:50%;background:var(--green)}
+  .logos{display:flex;align-items:center;gap:12px;position:relative}
+  .logos .free{height:40px} .logos .aje{height:50px;width:50px;border-radius:12px;background:#fff;object-fit:contain;padding:3px} .logos .sep{width:1px;height:36px;background:rgba(255,255,255,.4)}
+  .kick{margin-top:18px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;opacity:.85;font-weight:600;position:relative}
+  h1{margin:4px 0 4px;font-size:26px;line-height:1.1;font-weight:800;position:relative}
+  .top p{margin:0;opacity:.9;font-size:14.5px;position:relative}
+  .opts{padding:20px;display:grid;gap:12px}
+  .opts h2{margin:0 0 2px;font-size:14px;color:var(--ink2);font-weight:600}
+  a.op{display:flex;align-items:center;gap:14px;text-decoration:none;color:inherit;border:1px solid var(--line);border-radius:16px;padding:16px;
+       transition:border-color .15s,box-shadow .15s,transform .15s;min-height:76px}
+  a.op:hover,a.op:focus-visible{border-color:var(--accent);box-shadow:0 4px 16px rgba(59,71,224,.15);outline:none}
+  a.op:active{transform:scale(.99)}
+  .ic{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font-size:24px;flex:none}
+  .op b{display:block;font-size:17px} .op small{display:block;color:var(--muted);font-size:13.5px;margin-top:2px}
+  .op .go{margin-left:auto;color:var(--accent);font-size:22px;font-weight:700}
+  .b .ic{background:#eceefd} .c .ic{background:#e6f4ea}
+  .foot{margin-top:18px;color:var(--muted);font-size:12.5px;text-align:center}
+</style>
+</head>
+<body>
+  <main class="box">
+    <div class="top">
+      <div class="logos"><img class="free" src="img/free-blanco.png" alt="Free Marketing"><span class="sep"></span><img class="aje" src="img/aje.png" alt="AJE"></div>
+      <div class="kick">AJE × Free</div>
+      <h1>Portal AJE</h1>
+      <p>Inventario de productos, material POP y uniformes en almacén Free.</p>
+    </div>
+    <nav class="opts" aria-label="Elige cómo ingresar">
+      <h2>¿Cómo vas a ingresar?</h2>
+      <a class="op c" href="inventario.html"><span class="ic">📦</span><span><b>Equipo AJE</b><small>Inventario actualizado en vivo</small></span><span class="go">›</span></a>
+      <a class="op b" href="inventario.html?free"><span class="ic">🗂️</span><span><b>Back Office Free</b><small>Actualiza stock, fotos y artículos</small></span><span class="go">›</span></a>
+    </nav>
+  </main>
+  <p class="foot">Free Marketing para AJE · Inventario de activos</p>
+</body>
+</html>

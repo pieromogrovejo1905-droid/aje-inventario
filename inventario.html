@@ -1,0 +1,600 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#3b47e0">
+<title>AJE × Free · Inventario</title>
+<link rel="icon" href="img/aje.png" type="image/png">
+<style>
+  :root{
+    color-scheme:light;
+    --accent:#3b47e0; --accent-soft:#eceefd; --navy:#0b1f4d; --aje:#2e9e45; --aje-soft:#e6f4ea;
+    --bg:#f3f4fb; --card:#fff; --ink:#0b1f4d; --ink2:#4a5275; --muted:#8a90ab; --line:#e1e4f3; --grid:#eceef8;
+    --ok:#1d7a46; --ok-soft:#e6f4ec; --warn:#9a5800; --warn-soft:#fdf1df; --err:#b42318; --err-soft:#fdecea;
+  }
+  *{box-sizing:border-box}
+  [hidden]{display:none!important}
+  body{margin:0;font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink)}
+  button{font:inherit;color:inherit}
+  header{background:var(--accent);color:#fff;padding:18px 16px 22px;position:relative;overflow:hidden}
+  header::before{content:"";position:absolute;right:-60px;top:-90px;width:260px;height:260px;border-radius:50%;background:rgba(255,255,255,.08)}
+  header::after{content:"";position:absolute;left:46%;bottom:-30px;width:56px;height:56px;border-radius:50%;background:var(--aje)}
+  .hwrap{max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;gap:14px 24px;justify-content:space-between;position:relative;z-index:1}
+  .brand{display:flex;align-items:center;gap:16px}
+  .brand .free{height:46px;display:block}
+  .brand .sep{width:1px;height:44px;background:rgba(255,255,255,.4)}
+  .brand .aje{height:52px;width:52px;border-radius:12px;display:block;background:#fff;object-fit:contain;padding:3px}
+  .brand .tt{line-height:1.2}
+  .brand .kick{font-size:11px;letter-spacing:.14em;text-transform:uppercase;opacity:.85;font-weight:600}
+  .brand b{font-size:22px;display:block;font-weight:800;letter-spacing:-.01em}
+  .brand span{opacity:.85;font-size:13px}
+  .hright{display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+  .hrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .live{display:inline-flex;align-items:center;gap:8px;color:#fff;font-size:13px;background:rgba(255,255,255,.14);padding:5px 10px;border-radius:99px}
+  .live i{width:8px;height:8px;border-radius:50%;background:#7db843;box-shadow:0 0 0 0 rgba(29,122,70,.5);animation:p 2s infinite}
+  .live.off i{background:var(--muted);animation:none}
+  @keyframes p{70%{box-shadow:0 0 0 8px rgba(29,122,70,0)}100%{box-shadow:0 0 0 0 rgba(29,122,70,0)}}
+  .salir{background:rgba(255,255,255,.14);color:#fff;border:0;border-radius:99px;padding:5px 12px;font-size:13px;cursor:pointer}
+  @media (max-width:640px){.hright{align-items:flex-start}.brand .free{height:36px}.brand .aje{height:42px;width:42px}.brand b{font-size:18px}}
+
+  .mods{max-width:1280px;margin:0 auto;padding:14px 16px 0;display:flex;gap:8px;overflow-x:auto}
+  .mod{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:#fff;border-radius:12px;padding:9px 14px;font-weight:600;white-space:nowrap;cursor:pointer}
+  .mod.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .mod.soon{color:var(--muted);cursor:default;font-weight:500}
+  .mod.soon em{font-style:normal;font-size:11px;background:var(--grid);padding:2px 7px;border-radius:99px}
+
+  main{max-width:1280px;margin:0 auto;padding:12px 16px 40px}
+  .aviso{display:flex;gap:10px;align-items:flex-start;background:var(--warn-soft);color:var(--warn);border-radius:12px;padding:10px 14px;margin-bottom:12px}
+  .aviso span{flex:1;text-align:left} .aviso span:first-child{flex:none}
+  .lnk{background:none;border:0;color:var(--accent);cursor:pointer;padding:0;font-weight:600;font-size:13px}
+  .aviso .lnk{color:var(--warn)}
+  .kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:12px}
+  @media (max-width:1000px){.kpis{grid-template-columns:repeat(3,1fr)}}
+  @media (max-width:560px){.kpis{grid-template-columns:repeat(2,1fr);gap:8px}.kpi{padding:10px 12px}.kpi .v{font-size:24px}.kpi .s{font-size:11.5px}.kpi:last-child{grid-column:span 2}}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;text-align:left;cursor:pointer}
+  .kpi:hover{border-color:#c9cdee}
+  .kpi.sel{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+  .kpi .l{color:var(--ink2);font-size:13px;display:flex;align-items:center;gap:6px}
+  .kpi .v{font-size:30px;font-weight:750;letter-spacing:-.02em;line-height:1.15;margin-top:4px;font-variant-numeric:tabular-nums}
+  .kpi .s{color:var(--muted);font-size:12.5px;margin-top:2px}
+  .kpi.err .v{color:var(--err)} .kpi.warn .v{color:var(--warn)}
+
+  .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+  .seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:10px;padding:3px;flex-wrap:wrap}
+  .seg button{border:0;background:none;padding:7px 12px;border-radius:7px;color:var(--ink2);cursor:pointer;white-space:nowrap}
+  .seg button.on{background:var(--accent);color:#fff}
+  .seg button small{opacity:.7;margin-left:4px}
+  select,input[type=search],input[type=text],input[type=number],textarea{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+  input[type=search]{min-width:200px;flex:1;max-width:340px}
+  .sp{flex:1}
+  .tbtn{border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 12px;cursor:pointer;color:var(--ink);white-space:nowrap}
+  .tbtn.pri{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
+  .chk{display:inline-flex;align-items:center;gap:6px;color:var(--ink2);cursor:pointer;user-select:none}
+  @media (max-width:640px){input[type=search]{max-width:none;min-width:0;width:100%;flex-basis:100%;order:-1}.sp{display:none}#cats{flex-wrap:nowrap;overflow-x:auto;max-width:100%}#marca{flex:1}}
+
+  .grupo{margin-bottom:18px}
+  .grupo h2{font-size:15px;margin:4px 0 10px;display:flex;align-items:center;gap:8px}
+  .grupo h2 small{color:var(--muted);font-weight:500;font-size:13px}
+  .gridc{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px}
+  @media (max-width:440px){.gridc{grid-template-columns:repeat(2,1fr);gap:10px}}
+  .it{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;cursor:pointer;transition:box-shadow .15s,border-color .15s;text-align:left;padding:0}
+  .it:hover{border-color:#c9cdee;box-shadow:0 4px 16px rgba(11,31,77,.08)}
+  .it.cero{opacity:.72}
+  .ph{position:relative;aspect-ratio:1/1;background:var(--grid);overflow:hidden}
+  .ph img{width:100%;height:100%;object-fit:cover;display:block}
+  .ph.np{aspect-ratio:16/10}
+  .ph .ini{position:absolute;inset:0;display:grid;place-items:center;color:#fff;text-align:center;padding:10px}
+  .ph .ini b{display:block;font-size:26px;line-height:1}
+  .ph .ini span{display:block;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-top:8px;opacity:.95}
+  .ph .sinfoto{position:absolute;left:8px;bottom:8px;font-size:10.5px;background:rgba(0,0,0,.28);color:#fff;padding:2px 7px;border-radius:99px}
+  .ph .st{position:absolute;top:8px;right:8px}
+  .body{padding:10px 12px 12px;display:flex;flex-direction:column;gap:6px;flex:1}
+  .nm{font-weight:650;font-size:14px;line-height:1.25}
+  .tags{display:flex;gap:4px;flex-wrap:wrap}
+  .tag{font-size:11.5px;background:var(--grid);color:var(--ink2);padding:2px 7px;border-radius:99px}
+  .nota{font-size:12px;color:var(--warn);background:var(--warn-soft);padding:3px 8px;border-radius:8px}
+  .qty{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:auto;padding-top:4px}
+  .qty .n{font-size:24px;font-weight:750;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+  .qty .n small{font-size:12px;color:var(--muted);font-weight:500;margin-left:3px}
+  .qty .ant{font-size:11.5px;color:var(--muted)}
+  .step{display:flex;gap:6px}
+  .step button{width:34px;height:34px;border-radius:10px;border:1px solid var(--line);background:#fff;font-size:18px;font-weight:700;cursor:pointer;color:var(--accent);display:grid;place-items:center}
+  .step button:active{transform:scale(.94)}
+  .step button:disabled{opacity:.35}
+  .st{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:650;padding:3px 8px;border-radius:99px;white-space:nowrap}
+  .st.ok{background:var(--ok-soft);color:var(--ok)} .st.warn{background:var(--warn-soft);color:var(--warn)} .st.err{background:var(--err-soft);color:var(--err)}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px;min-width:0}
+  .card h2{font-size:15px;margin:0 0 2px}
+  .card .sub{color:var(--muted);font-size:12.5px;margin-bottom:12px}
+  .tw{overflow-x:auto}
+  .scroll{max-height:420px;overflow:auto}
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th{text-align:left;font-weight:600;color:var(--ink2);font-size:12px;text-transform:uppercase;letter-spacing:.03em;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap;position:sticky;top:0;background:#fff}
+  td{padding:9px 10px;border-bottom:1px solid var(--grid);vertical-align:middle}
+  td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+  tr.clic{cursor:pointer} tr.clic:hover td{background:#fafbff}
+  .tmini{width:38px;height:38px;border-radius:8px;object-fit:cover;display:block;background:var(--grid)}
+  .tini{width:38px;height:38px;border-radius:8px;display:grid;place-items:center;color:#fff;font-weight:800;font-size:13px}
+  .up{color:var(--ok);font-weight:700} .down{color:var(--err);font-weight:700}
+  .empty{color:var(--muted);padding:24px 0;text-align:center}
+
+  .login{position:fixed;inset:0;z-index:30;background:var(--bg);display:grid;place-items:center;padding:16px;overflow:auto}
+  .lbox{width:100%;max-width:400px;background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 20px 50px rgba(11,31,77,.15)}
+  .ltop{background:var(--accent);color:#fff;padding:24px 24px 22px;position:relative;overflow:hidden}
+  .ltop::before{content:"";position:absolute;right:-40px;top:-50px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.1)}
+  .ltop::after{content:"";position:absolute;right:80px;bottom:-24px;width:50px;height:50px;border-radius:50%;background:var(--aje)}
+  .ltop .logos{display:flex;align-items:center;gap:12px;margin-bottom:16px;position:relative}
+  .ltop .logos .free{height:42px} .ltop .logos .aje{height:50px;width:50px;border-radius:12px;background:#fff;object-fit:contain;padding:3px} .ltop .logos .sep{width:1px;height:38px;background:rgba(255,255,255,.4)}
+  .ltop .kick{font-size:11px;letter-spacing:.14em;text-transform:uppercase;opacity:.85;font-weight:600;position:relative}
+  .ltop h1{margin:2px 0 4px;font-size:26px;font-weight:800;position:relative}
+  .ltop p{margin:0;opacity:.9;position:relative}
+  .lform{padding:20px 24px 24px}
+  .lform label{display:block;font-weight:600;font-size:13px;margin:12px 0 6px;color:var(--ink2)}
+  .lform input{width:100%;font-size:16px;padding:11px 12px;border:1px solid #cfd3ea;border-radius:10px}
+  .lform input:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
+  .lform .go{width:100%;margin-top:18px;border:0;border-radius:12px;background:var(--accent);color:#fff;font-weight:700;font-size:16px;padding:13px;cursor:pointer}
+  .lform .go:disabled{opacity:.6}
+  .lform .volver{display:block;text-align:center;margin-top:14px;color:var(--muted);font-size:13px;text-decoration:none}
+  .lerr{background:var(--err-soft);color:var(--err);padding:10px 12px;border-radius:10px;margin-top:12px;font-size:13.5px}
+
+  .modal{position:fixed;inset:0;background:rgba(11,31,77,.55);display:grid;place-items:center;z-index:20;padding:16px}
+  .mbox{background:#fff;border-radius:18px;max-width:820px;width:100%;max-height:92vh;overflow:auto;position:relative}
+  .mx{position:absolute;top:10px;right:10px;width:36px;height:36px;border-radius:50%;border:0;background:rgba(255,255,255,.9);box-shadow:0 2px 8px rgba(0,0,0,.15);font-size:20px;cursor:pointer;z-index:2}
+  .det{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr)}
+  @media (max-width:700px){.det{grid-template-columns:1fr}}
+  .det .ph{aspect-ratio:auto;min-height:280px;height:100%}
+  .det .ph img{object-fit:contain;background:#f2f3f8}
+  .dbody{padding:20px}
+  .dbody h3{margin:0 0 6px;font-size:20px;line-height:1.2;padding-right:36px}
+  .big{display:flex;align-items:baseline;gap:8px;margin:12px 0}
+  .big b{font-size:40px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+  .kv{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:13.5px;margin:10px 0}
+  .kv dt{color:var(--muted)} .kv dd{margin:0}
+  .adj{border:1px solid var(--line);border-radius:12px;padding:12px;margin:14px 0;display:grid;gap:8px}
+  .adj h4{margin:0;font-size:13px;color:var(--ink2)}
+  .adjrow{display:flex;gap:8px;flex-wrap:wrap}
+  .adjrow input[type=number]{width:96px}
+  .adjrow input[type=text]{flex:1;min-width:140px}
+  .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .hist{margin-top:14px}
+  .hist h4{margin:0 0 6px;font-size:13px;color:var(--ink2)}
+  .hrowi{display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--grid);font-size:13px}
+  .hrowi:last-child{border-bottom:0}
+  .hrowi .t{color:var(--muted);white-space:nowrap;min-width:92px}
+  .form{padding:20px;display:grid;gap:10px}
+  .form h3{margin:0 0 4px;font-size:18px}
+  .form label{display:grid;gap:5px;font-size:13px;font-weight:600;color:var(--ink2)}
+  .form .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media (max-width:480px){.form .two{grid-template-columns:1fr}}
+  .form input,.form select,.form textarea{width:100%;font-weight:400}
+  .toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--navy);color:#fff;padding:10px 16px;border-radius:12px;z-index:40;font-size:14px;box-shadow:0 8px 24px rgba(0,0,0,.2);max-width:calc(100% - 32px)}
+  .toast.err{background:var(--err)}
+  .demo-banner{background:var(--warn-soft);color:var(--warn);padding:8px 16px;text-align:center;font-size:13px}
+  .foot{max-width:1280px;margin:0 auto;padding:4px 16px 32px;display:flex;align-items:center;gap:12px;color:var(--muted);font-size:12.5px;flex-wrap:wrap}
+  .foot img{height:30px} .foot .aje{height:34px;width:34px;object-fit:contain}
+  @media print{header,.mods,.toolbar,.step,.foot,.lnk{display:none!important}.scroll{max-height:none}}
+</style>
+</head>
+<body>
+<div class="demo-banner" id="demo" hidden>Modo demo: los cambios se guardan solo en este navegador.</div>
+
+<section class="login" id="login" hidden>
+  <div class="lbox">
+    <div class="ltop">
+      <div class="logos"><img class="free" src="img/free-blanco.png" alt="Free Marketing"><span class="sep"></span><img class="aje" src="img/aje.png" alt="AJE"></div>
+      <div class="kick">AJE × Free</div>
+      <h1>Inventario</h1>
+      <p id="lsub">Stock de productos, material POP y uniformes.</p>
+    </div>
+    <form class="lform" id="lform" autocomplete="on">
+      <label for="lu">Usuario</label>
+      <input id="lu" name="username" autocomplete="username" autocapitalize="none" required>
+      <label for="lc">Contraseña</label>
+      <input id="lc" name="password" type="password" autocomplete="current-password" required>
+      <div class="lerr" id="lerr" hidden></div>
+      <button class="go" id="lgo">Ingresar</button>
+      <a class="volver" href="./">‹ Volver al inicio</a>
+    </form>
+  </div>
+</section>
+
+<header>
+  <div class="hwrap">
+    <div class="brand">
+      <img class="free" src="img/free-blanco.png" alt="Free Marketing">
+      <span class="sep"></span>
+      <img class="aje" src="img/aje.png" alt="AJE">
+      <div class="tt"><div class="kick">AJE × Free</div><b>Inventario de activos</b><span>Almacén Free Marketing</span></div>
+    </div>
+    <div class="hright">
+      <span class="live off" id="live"><i></i><span id="livet">Cargando…</span></span>
+      <div class="hrow"><span id="quien" style="font-size:13px;opacity:.9"></span><button class="salir" id="salir">Salir</button></div>
+    </div>
+  </div>
+</header>
+
+<nav class="mods" aria-label="Módulos">
+  <button class="mod on">📦 Inventario</button>
+  <span class="mod soon">Más módulos <em>Próximamente</em></span>
+</nav>
+
+<main>
+  <div class="aviso" id="aviso" hidden><span>⚠️</span><span id="avisot"></span><button class="lnk free-only" id="avisoEd">Editar</button></div>
+  <div class="aviso" id="avisoNuevo" hidden style="background:#fff;border:1px dashed var(--line);color:var(--ink2)"><span>📝</span><span>Sin avisos para AJE.</span><button class="lnk" id="avisoAdd" style="color:var(--accent)">Agregar aviso</button></div>
+
+  <section class="kpis" id="kpis"></section>
+
+  <div class="toolbar">
+    <div class="seg" id="cats" role="tablist"></div>
+    <select id="marca" aria-label="Marca"></select>
+    <input type="search" id="q" placeholder="Buscar artículo…" aria-label="Buscar">
+    <label class="chk"><input type="checkbox" id="conStock"> Solo con stock</label>
+    <span class="sp"></span>
+    <div class="seg" id="vista"><button data-v="g" class="on" title="Tarjetas">▦</button><button data-v="t" title="Lista">☰</button></div>
+    <button class="tbtn" id="csv">⬇ Descargar</button>
+    <button class="tbtn pri free-only" id="nuevo">＋ Agregar</button>
+  </div>
+
+  <section id="lista"></section>
+
+  <section class="card">
+    <h2>Últimos movimientos</h2>
+    <div class="sub">Cada ingreso, salida o corrección queda registrado con fecha, hora y responsable.</div>
+    <div class="tw scroll"><table><thead><tr><th>Fecha</th><th>Artículo</th><th class="n">Antes</th><th class="n">Cambio</th><th class="n">Ahora</th><th>Motivo</th><th>Por</th></tr></thead><tbody id="movs"></tbody></table></div>
+  </section>
+</main>
+<footer class="foot"><img src="img/free-azul.png" alt="Free Marketing"><img class="aje" src="img/aje.png" alt="AJE"><span>Free Marketing para AJE · Inventario actualizado en vivo</span></footer>
+
+<div class="modal" id="modal" hidden><div class="mbox" id="mbox"></div></div>
+<input type="file" id="file" accept="image/*" hidden>
+
+<script src="config.js"></script>
+<script>
+const C = window.AJE || {};
+const API = (C.API_URL || '').trim();
+const DEMO = !API;
+const BAJO = C.STOCK_BAJO ?? 5;
+const CATS = ['Bebidas', 'Material POP', 'Uniformes', 'Polos y casacas', 'Licores'];
+const ICON = { 'Bebidas': '🥤', 'Material POP': '🏷️', 'Uniformes': '👗', 'Polos y casacas': '👕', 'Licores': '🍾' };
+const COLOR = { 'Hey Fit': '#1f9d55', 'Volt': '#2340b8', 'Cielo': '#0096d6', 'Sirana': '#6b4fbb', 'Big Cola': '#d62828', 'Oro': '#c98d00',
+  'Kolita': '#e85d04', 'Dilyte': '#d9417a', 'Sporade': '#0077b6', 'José Cuervo': '#8d5a3b', 'Bacardí': '#333', 'AJE': '#2e9e45' };
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const SK = 'aje:sesion';
+let S = null;          // sesión {token, usuario:{nombre, rol}}
+let D = { items: [], movimientos: [], aviso: '' };
+let F = { cat: '', marca: '', q: '', conStock: false, estado: '', vista: 'g' };
+try { Object.assign(F, JSON.parse(localStorage.getItem('aje:f') || '{}')); } catch (e) { }
+F.estado = '';
+
+const esFree = () => S?.usuario?.rol === 'free';
+const colorDe = m => COLOR[m] || '#5a6385';
+const estado = i => i.cantidad <= 0 ? 'err' : i.cantidad <= BAJO && i.categoria !== 'Uniformes' ? 'warn' : 'ok';
+const ESTXT = { ok: 'Disponible', warn: 'Stock bajo', err: 'Agotado' };
+const driveId = u => (String(u).match(/\/d\/([\w-]{20,})/) || String(u).match(/[?&]id=([\w-]{20,})/) || [])[1];
+const thumb = (u, w = 600) => !u ? '' : u.startsWith('data:') ? u : driveId(u) ? `https://drive.google.com/thumbnail?id=${driveId(u)}&sz=w${w}` : u;
+const iniciales = m => String(m || '?').split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
+const fmt = n => Number(n || 0).toLocaleString('es-PE');
+const titulo = i => i.nombre + (i.detalle ? ' · ' + i.detalle : '');
+
+function toast(t, err) {
+  const d = document.createElement('div'); d.className = 'toast' + (err ? ' err' : ''); d.textContent = t;
+  document.body.appendChild(d); setTimeout(() => d.remove(), 3200);
+}
+
+/* ---------------- API (o demo local) ---------------- */
+async function api(b) {
+  if (DEMO) return demoApi(b);
+  const r = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ ...b, token: S?.token }) }).then(r => r.json());
+  if (!r.ok && r.code === 'auth' && b.tipo !== 'login') { cerrarSesion(); throw new Error(r.error); }
+  if (!r.ok) throw new Error(r.error || 'No se pudo guardar');
+  return r;
+}
+
+function demoDB() {
+  let db; try { db = JSON.parse(localStorage.getItem('aje:demo')); } catch (e) { }
+  if (!db) {
+    db = { items: AJE_SEMILLA.map((s, i) => ({ id: 'it' + String(i + 1).padStart(3, '0'), categoria: s[0], nombre: s[1], marca: s[2], detalle: s[3] || '',
+      cantidad: s[4] || 0, stock_anterior: s[5] ?? '', unidad: s[6] || 'unid.', nota: s[7] || '', foto: s[8] || '', actualizado_en: '2026-11-06 09:00', actualizado_por: 'Carga inicial (Excel nov.)' })),
+      movimientos: [], aviso: AJE_AVISO };
+  }
+  return db;
+}
+function demoApi(b) {
+  const db = demoDB(), now = new Date(), f = now.toISOString().slice(0, 10), h = now.toTimeString().slice(0, 5);
+  const save = () => localStorage.setItem('aje:demo', JSON.stringify(db));
+  const mov = (it, a, d, m) => db.movimientos.unshift({ fecha: f, hora: h, usuario: S.usuario.nombre, item_id: it.id, item: titulo(it), antes: a, despues: d, cambio: d - a, motivo: m });
+  const it = db.items.find(x => x.id === b.id || x.id === b.item?.id);
+  if (b.tipo === 'login') {
+    const u = { free: { nombre: 'Equipo Free', rol: 'free' }, aje: { nombre: 'AJE', rol: 'cliente' } }[String(b.usuario).trim().toLowerCase()];
+    if (!u || b.clave !== 'demo') throw new Error('En modo demo: usuario "free" o "aje", contraseña "demo"');
+    return { ok: true, token: 'demo', usuario: u };
+  }
+  if (b.tipo === 'datos') return { ok: true, ...db };
+  if (!esFree()) throw new Error('Solo el equipo Free puede modificar el inventario');
+  if (b.tipo === 'ajustar') { const a = it.cantidad, n = b.cantidad !== undefined ? Math.round(b.cantidad) : a + b.cambio; if (n < 0) throw new Error('El stock no puede quedar negativo'); it.cantidad = n; it.actualizado_en = f + ' ' + h; it.actualizado_por = S.usuario.nombre; if (a !== n) mov(it, a, n, b.motivo || (n > a ? 'Ingreso' : 'Salida')); }
+  if (b.tipo === 'guardar') {
+    const x = b.item;
+    if (!x.nombre?.trim()) throw new Error('Escribe el nombre del artículo');
+    if (x.id) { const a = it.cantidad; Object.assign(it, x, { cantidad: +x.cantidad, actualizado_en: f + ' ' + h, actualizado_por: S.usuario.nombre }); if (a !== it.cantidad) mov(it, a, it.cantidad, x.motivo || 'Edición'); }
+    else { const n = { ...x, id: 'it' + Date.now().toString(36), cantidad: +x.cantidad, stock_anterior: '', foto: '', actualizado_en: f + ' ' + h, actualizado_por: S.usuario.nombre }; db.items.push(n); mov(n, 0, n.cantidad, 'Artículo nuevo'); }
+  }
+  if (b.tipo === 'foto') { it.foto = b.foto; }
+  if (b.tipo === 'eliminar') { mov(it, it.cantidad, 0, 'Artículo retirado del inventario'); db.items = db.items.filter(x => x !== it); }
+  if (b.tipo === 'aviso') db.aviso = b.aviso;
+  save(); return { ok: true, foto: b.foto };
+}
+
+/* ---------------- Sesión ---------------- */
+function cerrarSesion() { localStorage.removeItem(SK); S = null; mostrarLogin(); }
+function mostrarLogin(msg) {
+  $('#login').hidden = false;
+  $('#lsub').textContent = location.search.includes('free') ? 'Back Office Free: actualiza stock, fotos y artículos.' : 'Stock de productos, material POP y uniformes.';
+  $('#lerr').hidden = !msg; $('#lerr').textContent = msg || '';
+  setTimeout(() => $('#lu').focus(), 50);
+}
+$('#lform').onsubmit = async e => {
+  e.preventDefault();
+  $('#lgo').disabled = true; $('#lgo').textContent = 'Ingresando…'; $('#lerr').hidden = true;
+  try {
+    const r = await api({ tipo: 'login', usuario: $('#lu').value, clave: $('#lc').value });
+    S = { token: r.token, usuario: r.usuario };
+    localStorage.setItem(SK, JSON.stringify(S));
+    $('#login').hidden = true; $('#lc').value = '';
+    iniciar();
+  } catch (err) { $('#lerr').hidden = false; $('#lerr').textContent = err.message; }
+  $('#lgo').disabled = false; $('#lgo').textContent = 'Ingresar';
+};
+$('#salir').onclick = cerrarSesion;
+
+/* ---------------- Datos ---------------- */
+let timer;
+async function cargar(silencioso) {
+  try {
+    const r = await api({ tipo: 'datos' });
+    D = { items: r.items || [], movimientos: r.movimientos || [], aviso: r.aviso || '' };
+    $('#live').classList.remove('off');
+    $('#livet').textContent = 'Actualizado ' + new Date().toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
+    pintar();
+  } catch (e) {
+    $('#live').classList.add('off'); $('#livet').textContent = 'Sin conexión';
+    if (!silencioso && S) toast(e.message, true);
+  }
+}
+function iniciar() {
+  $('#quien').textContent = S.usuario.nombre + (esFree() ? ' · puede editar' : ' · solo lectura');
+  document.querySelectorAll('.free-only').forEach(el => el.hidden = !esFree());
+  cargar();
+  clearInterval(timer);
+  timer = setInterval(() => { if (!document.hidden && $('#modal').hidden) cargar(true); }, 60000);
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden && S) cargar(true); });
+
+/* ---------------- Pintar ---------------- */
+function filtrados(sinEstado) {
+  const q = F.q.trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  return D.items.filter(i => (!F.cat || i.categoria === F.cat) && (!F.marca || i.marca === F.marca) && (!F.conStock || i.cantidad > 0)
+    && (sinEstado || !F.estado || estado(i) === F.estado || (F.estado === 'foto' && !!i.foto))
+    && (!q || [i.nombre, i.marca, i.detalle, i.categoria, i.nota].join(' ').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').includes(q)));
+}
+
+function pintar() {
+  localStorage.setItem('aje:f', JSON.stringify({ ...F, estado: '' }));
+  // Aviso
+  $('#aviso').hidden = !D.aviso; $('#avisot').textContent = D.aviso;
+  $('#avisoNuevo').hidden = !!D.aviso || !esFree();
+  // KPIs (sobre el filtro de categoría/marca/búsqueda)
+  const base = filtrados(true);
+  const k = (id, l, v, s, cls = '') => `<button class="kpi ${cls} ${F.estado === id ? 'sel' : ''}" data-e="${id}"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${s}</div></button>`;
+  const uni = base.reduce((a, i) => a + i.cantidad, 0);
+  const con = base.filter(i => i.cantidad > 0).length;
+  const bajo = base.filter(i => estado(i) === 'warn').length, cero = base.filter(i => estado(i) === 'err').length;
+  const fotos = base.filter(i => i.foto).length;
+  $('#kpis').innerHTML = k('', 'Artículos', fmt(base.length), `${con} con stock`) + k('ok', 'Unidades en almacén', fmt(uni), 'Suma de todo el stock')
+    + k('warn', 'Stock bajo', bajo, `${BAJO} unid. o menos (sin uniformes)`, bajo ? 'warn' : '') + k('err', 'Agotados', cero, 'Sin unidades', cero ? 'err' : '')
+    + k('foto', 'Con foto', `${fotos}<small style="font-size:15px;color:var(--muted);font-weight:600"> / ${base.length}</small>`, esFree() ? 'Toca un artículo para subir foto' : 'Toca un artículo para ver el detalle');
+  // Categorías
+  const nCat = c => D.items.filter(i => i.categoria === c).length;
+  const cats = [...CATS, ...new Set(D.items.map(i => i.categoria).filter(c => !CATS.includes(c)))].filter(c => nCat(c));
+  $('#cats').innerHTML = `<button data-c="" class="${!F.cat ? 'on' : ''}">Todo<small>${D.items.length}</small></button>`
+    + cats.map(c => `<button data-c="${esc(c)}" class="${F.cat === c ? 'on' : ''}">${ICON[c] || '📦'} ${esc(c)}<small>${nCat(c)}</small></button>`).join('');
+  const marcas = [...new Set(D.items.filter(i => !F.cat || i.categoria === F.cat).map(i => i.marca).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'es'));
+  if (F.marca && !marcas.includes(F.marca)) F.marca = '';
+  $('#marca').innerHTML = '<option value="">Todas las marcas</option>' + marcas.map(m => `<option ${F.marca === m ? 'selected' : ''}>${esc(m)}</option>`).join('');
+  $('#q').value = F.q; $('#conStock').checked = F.conStock;
+  document.querySelectorAll('#vista button').forEach(b => b.classList.toggle('on', b.dataset.v === F.vista));
+  // Lista
+  const its = filtrados().sort((a, b) => (b.cantidad > 0) - (a.cantidad > 0));
+  if (!its.length) { $('#lista').innerHTML = `<div class="card empty">No hay artículos con esos filtros.</div>`; }
+  else if (F.vista === 't') {
+    $('#lista').innerHTML = `<section class="card"><div class="tw"><table><thead><tr><th></th><th>Artículo</th><th>Categoría</th><th>Marca</th><th class="n">Stock</th><th>Estado</th><th>Actualizado</th></tr></thead><tbody>`
+      + its.map(i => `<tr class="clic" data-id="${i.id}"><td>${miniFoto(i)}</td><td><b>${esc(i.nombre)}</b>${i.detalle ? `<br><small style="color:var(--muted)">${esc(i.detalle)}</small>` : ''}${i.nota ? `<br><small style="color:var(--warn)">${esc(i.nota)}</small>` : ''}</td><td>${esc(i.categoria)}</td><td>${esc(i.marca)}</td><td class="n"><b>${fmt(i.cantidad)}</b></td><td><span class="st ${estado(i)}">${ESTXT[estado(i)]}</span></td><td style="color:var(--muted);font-size:12.5px">${esc(i.actualizado_en)}</td></tr>`).join('')
+      + `</tbody></table></div></section>`;
+  } else {
+    const grupos = F.cat ? [F.cat] : cats;
+    $('#lista').innerHTML = grupos.map(c => {
+      const g = its.filter(i => i.categoria === c);
+      if (!g.length) return '';
+      return `<div class="grupo"><h2>${ICON[c] || '📦'} ${esc(c)} <small>${g.length} artículo${g.length > 1 ? 's' : ''} · ${fmt(g.reduce((a, i) => a + i.cantidad, 0))} unid.</small></h2><div class="gridc">${g.map(tarjeta).join('')}</div></div>`;
+    }).join('');
+  }
+  // Movimientos
+  $('#movs').innerHTML = D.movimientos.length ? D.movimientos.slice(0, 100).map(m => `<tr><td style="white-space:nowrap">${esc(fFecha(m.fecha))} ${esc(m.hora)}</td><td>${esc(m.item)}</td><td class="n">${m.antes}</td><td class="n ${m.cambio > 0 ? 'up' : 'down'}">${m.cambio > 0 ? '+' : ''}${m.cambio}</td><td class="n"><b>${m.despues}</b></td><td>${esc(m.motivo)}</td><td>${esc(m.usuario)}</td></tr>`).join('')
+    : `<tr><td colspan="7" class="empty">Aún no hay movimientos. El stock inicial viene del Excel de noviembre.</td></tr>`;
+}
+const fFecha = f => { const p = String(f).split('-'); return p.length === 3 ? `${p[2]}/${p[1]}` : f; };
+
+function marcador(i, grande) {
+  return `<div class="ini" style="background:linear-gradient(135deg,${colorDe(i.marca)},${colorDe(i.marca)}cc)"><div><b>${ICON[i.categoria] || '📦'}</b><span>${esc(i.marca || i.categoria)}</span>${grande ? `<span style="font-weight:500;text-transform:none;letter-spacing:0;margin-top:4px">${esc(i.nombre)}</span>` : ''}</div></div>`;
+}
+function miniFoto(i) { return i.foto ? `<img class="tmini" src="${esc(thumb(i.foto, 120))}" alt="" loading="lazy">` : `<div class="tini" style="background:${colorDe(i.marca)}">${iniciales(i.marca)}</div>`; }
+function tarjeta(i) {
+  const e = estado(i);
+  return `<article class="it ${i.cantidad <= 0 ? 'cero' : ''}" data-id="${i.id}" tabindex="0">
+    <div class="ph ${i.foto ? '' : 'np'}">${i.foto ? `<img src="${esc(thumb(i.foto))}" alt="${esc(i.nombre)}" loading="lazy">` : marcador(i) + (esFree() ? '<span class="sinfoto">📷 Sin foto</span>' : '')}<span class="st ${e}">${ESTXT[e]}</span></div>
+    <div class="body">
+      <div class="nm">${esc(i.nombre)}</div>
+      <div class="tags">${i.marca ? `<span class="tag">${esc(i.marca)}</span>` : ''}${i.detalle ? `<span class="tag">${esc(i.detalle)}</span>` : ''}</div>
+      ${i.nota ? `<div class="nota">⚠️ ${esc(i.nota)}</div>` : ''}
+      <div class="qty"><div><div class="n">${fmt(i.cantidad)}<small>${esc(i.unidad || 'unid.')}</small></div>${i.stock_anterior !== '' && i.stock_anterior !== undefined && i.categoria === 'Uniformes' ? `<div class="ant">Setiembre: ${i.stock_anterior}</div>` : ''}</div>
+        ${esFree() ? `<div class="step"><button data-a="-1" aria-label="Restar 1" ${i.cantidad <= 0 ? 'disabled' : ''}>−</button><button data-a="1" aria-label="Sumar 1">+</button></div>` : ''}</div>
+    </div></article>`;
+}
+
+/* ---------------- Eventos de filtros ---------------- */
+$('#kpis').onclick = e => { const b = e.target.closest('.kpi'); if (!b) return; F.estado = F.estado === b.dataset.e ? '' : b.dataset.e; pintar(); };
+$('#cats').onclick = e => { const b = e.target.closest('button'); if (!b) return; F.cat = b.dataset.c; pintar(); };
+$('#marca').onchange = e => { F.marca = e.target.value; pintar(); };
+$('#q').oninput = e => { F.q = e.target.value; pintar(); };
+$('#conStock').onchange = e => { F.conStock = e.target.checked; pintar(); };
+$('#vista').onclick = e => { const b = e.target.closest('button'); if (!b) return; F.vista = b.dataset.v; pintar(); };
+$('#lista').onclick = async e => {
+  const st = e.target.closest('.step button');
+  const card = e.target.closest('[data-id]');
+  if (!card) return;
+  const it = D.items.find(x => x.id === card.dataset.id);
+  if (st) { e.stopPropagation(); return ajusteRapido(it, +st.dataset.a); }
+  abrirDetalle(it);
+};
+$('#lista').onkeydown = e => { if (e.key === 'Enter' && e.target.matches('.it')) abrirDetalle(D.items.find(x => x.id === e.target.dataset.id)); };
+
+/* ---------------- Edición ---------------- */
+const pend = {};
+function ajusteRapido(it, d) {
+  if (it.cantidad + d < 0) return;
+  it.cantidad += d; pintar();
+  // Agrupa clics seguidos en un solo movimiento
+  const p = pend[it.id] || (pend[it.id] = { suma: 0 });
+  p.suma += d; clearTimeout(p.t);
+  p.t = setTimeout(async () => {
+    const cambio = p.suma; delete pend[it.id];
+    if (!cambio) return;
+    try { await api({ tipo: 'ajustar', id: it.id, cambio, motivo: cambio > 0 ? 'Ingreso' : 'Salida' }); toast(`${titulo(it)}: ${cambio > 0 ? '+' : ''}${cambio} → ${it.cantidad}`); cargar(true); }
+    catch (err) { toast(err.message, true); cargar(true); }
+  }, 900);
+}
+
+function cerrarModal() { $('#modal').hidden = true; $('#mbox').innerHTML = ''; document.body.style.overflow = ''; }
+function abrirModal(html) { $('#mbox').innerHTML = `<button class="mx" aria-label="Cerrar">×</button>` + html; $('#modal').hidden = false; document.body.style.overflow = 'hidden'; $('#mbox .mx').onclick = cerrarModal; }
+$('#modal').onclick = e => { if (e.target.id === 'modal') cerrarModal(); };
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#modal').hidden) cerrarModal(); });
+
+function abrirDetalle(it) {
+  const e = estado(it);
+  const hist = D.movimientos.filter(m => m.item_id === it.id).slice(0, 12);
+  abrirModal(`<div class="det">
+    <div class="ph">${it.foto ? `<a href="${esc(it.foto.startsWith('data:') ? '#' : it.foto)}" target="_blank" rel="noopener"><img src="${esc(thumb(it.foto, 1200))}" alt="${esc(it.nombre)}"></a>` : marcador(it, true)}</div>
+    <div class="dbody">
+      <h3>${esc(it.nombre)}</h3>
+      <div class="tags">${[it.categoria, it.marca, it.detalle].filter(Boolean).map(t => `<span class="tag">${esc(t)}</span>`).join('')}</div>
+      <div class="big"><b>${fmt(it.cantidad)}</b><span>${esc(it.unidad || 'unid.')}</span><span class="st ${e}">${ESTXT[e]}</span></div>
+      ${it.nota ? `<div class="nota">⚠️ ${esc(it.nota)}</div>` : ''}
+      <dl class="kv">${it.stock_anterior !== '' && it.categoria === 'Uniformes' ? `<dt>Stock setiembre</dt><dd>${it.stock_anterior}</dd>` : ''}<dt>Actualizado</dt><dd>${esc(it.actualizado_en || '—')}</dd><dt>Por</dt><dd>${esc(it.actualizado_por || '—')}</dd></dl>
+      ${esFree() ? `<div class="adj"><h4>Registrar movimiento</h4>
+        <div class="adjrow"><select id="adjTipo"><option value="in">Ingreso (+)</option><option value="out">Salida (−)</option><option value="set">Conteo físico (=)</option></select><input type="number" id="adjN" min="0" step="1" inputmode="numeric" placeholder="Cant."></div>
+        <div class="adjrow"><input type="text" id="adjM" placeholder="Motivo (ej. activación Plaza Norte, devolución…)"><button class="tbtn pri" id="adjGo">Guardar</button></div></div>
+        <div class="acts"><button class="tbtn" id="dFoto">📷 ${it.foto ? 'Cambiar foto' : 'Subir foto'}</button><button class="tbtn" id="dEd">✏️ Editar datos</button><button class="tbtn" id="dDel" style="color:var(--err)">Retirar</button></div>` : ''}
+      <div class="hist"><h4>Historial</h4>${hist.length ? hist.map(m => `<div class="hrowi"><span class="t">${esc(fFecha(m.fecha))} ${esc(m.hora)}</span><span class="${m.cambio > 0 ? 'up' : 'down'}">${m.cambio > 0 ? '+' : ''}${m.cambio}</span><span style="flex:1">${esc(m.motivo)} · <span style="color:var(--muted)">${esc(m.usuario)}</span></span><b>${m.despues}</b></div>`).join('') : '<div style="color:var(--muted);font-size:13px">Sin movimientos desde la carga inicial.</div>'}</div>
+    </div></div>`);
+  if (!esFree()) return;
+  $('#adjGo').onclick = async () => {
+    const n = Math.round(+$('#adjN').value), t = $('#adjTipo').value;
+    if (!($('#adjN').value !== '' && n >= 0) || (t !== 'set' && n === 0)) return toast('Escribe una cantidad válida', true);
+    const b = { tipo: 'ajustar', id: it.id, motivo: $('#adjM').value.trim() || { in: 'Ingreso', out: 'Salida', set: 'Conteo físico' }[t] };
+    if (t === 'set') b.cantidad = n; else b.cambio = t === 'in' ? n : -n;
+    if (t === 'out' && n > it.cantidad) return toast(`Solo hay ${it.cantidad} en stock`, true);
+    $('#adjGo').disabled = true;
+    try { await api(b); toast('Movimiento guardado'); await cargar(true); abrirDetalle(D.items.find(x => x.id === it.id)); }
+    catch (err) { toast(err.message, true); $('#adjGo').disabled = false; }
+  };
+  $('#dFoto').onclick = () => { fotoPara = it; $('#file').value = ''; $('#file').click(); };
+  $('#dEd').onclick = () => abrirForm(it);
+  $('#dDel').onclick = async () => {
+    if (!confirm(`¿Retirar "${titulo(it)}" del inventario? Dejará de verse, pero queda en el historial.`)) return;
+    try { await api({ tipo: 'eliminar', id: it.id }); cerrarModal(); toast('Artículo retirado'); cargar(true); } catch (err) { toast(err.message, true); }
+  };
+}
+
+let fotoPara = null;
+$('#file').onchange = async e => {
+  const f = e.target.files[0]; if (!f || !fotoPara) return;
+  const it = fotoPara; toast('Subiendo foto…');
+  try {
+    const data = await comprimir(f, 1280, .82);
+    const r = await api({ tipo: 'foto', id: it.id, foto: data });
+    it.foto = r.foto || data; toast('Foto guardada'); await cargar(true);
+    abrirDetalle(D.items.find(x => x.id === it.id) || it);
+  } catch (err) { toast(err.message, true); }
+};
+function comprimir(file, max, q) {
+  return new Promise((ok, ko) => {
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => {
+      const s = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement('canvas'); c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
+      ok(c.toDataURL('image/jpeg', q));
+    };
+    img.onerror = () => ko(new Error('No se pudo leer la imagen'));
+    img.src = url;
+  });
+}
+
+function abrirForm(it) {
+  const n = !it; it = it || { categoria: F.cat || 'Material POP', marca: F.marca || '', unidad: 'unid.', cantidad: 0 };
+  const cats = [...new Set([...CATS, ...D.items.map(i => i.categoria)])];
+  const marcas = [...new Set([...Object.keys(COLOR), ...D.items.map(i => i.marca)])].filter(Boolean).sort((a, b) => a.localeCompare(b, 'es'));
+  abrirModal(`<form class="form" id="fm"><h3>${n ? 'Agregar artículo' : 'Editar artículo'}</h3>
+    <label>Nombre<input name="nombre" required value="${esc(it.nombre)}" placeholder="Ej. Lanyards Volt"></label>
+    <div class="two"><label>Categoría<select name="categoria">${cats.map(c => `<option ${c === it.categoria ? 'selected' : ''}>${esc(c)}</option>`).join('')}</select></label>
+    <label>Marca<input name="marca" list="dlm" value="${esc(it.marca)}" placeholder="Ej. Hey Fit"><datalist id="dlm">${marcas.map(m => `<option value="${esc(m)}">`).join('')}</datalist></label></div>
+    <div class="two"><label>Detalle (talla, tamaño, sabor)<input name="detalle" value="${esc(it.detalle)}" placeholder="Ej. Talla M · 600 ml"></label>
+    <label>Unidad<input name="unidad" value="${esc(it.unidad || 'unid.')}" placeholder="unid., cajas, paquetes"></label></div>
+    <div class="two"><label>Cantidad en stock<input name="cantidad" type="number" min="0" step="1" inputmode="numeric" required value="${it.cantidad}"></label>
+    <label>Motivo del cambio de cantidad<input name="motivo" placeholder="${n ? 'Artículo nuevo' : 'Edición'}"></label></div>
+    <label>Nota visible para AJE<input name="nota" value="${esc(it.nota)}" placeholder="Ej. vencidas, dañado, reservado para…"></label>
+    ${n ? '<div style="font-size:12.5px;color:var(--muted)">Podrás subir la foto después de guardar.</div>' : ''}
+    <div class="acts"><button class="tbtn pri" id="fmGo">Guardar</button><button type="button" class="tbtn" id="fmNo">Cancelar</button></div></form>`);
+  $('#fmNo').onclick = () => n ? cerrarModal() : abrirDetalle(it);
+  $('#fm').onsubmit = async e => {
+    e.preventDefault();
+    const item = Object.fromEntries(new FormData(e.target));
+    item.cantidad = Math.round(+item.cantidad);
+    if (!n) item.id = it.id;
+    $('#fmGo').disabled = true;
+    try {
+      const r = await api({ tipo: 'guardar', item }); toast('Guardado'); await cargar(true);
+      const nuevo = D.items.find(x => x.id === (r.id || item.id));
+      nuevo ? abrirDetalle(nuevo) : cerrarModal();
+    } catch (err) { toast(err.message, true); $('#fmGo').disabled = false; }
+  };
+}
+$('#nuevo').onclick = () => abrirForm(null);
+
+function editarAviso() {
+  abrirModal(`<form class="form" id="fa"><h3>Aviso para AJE</h3><label>Se muestra arriba del inventario. Déjalo vacío para quitarlo.<textarea name="aviso" rows="3">${esc(D.aviso)}</textarea></label>
+    <div class="acts"><button class="tbtn pri">Guardar</button></div></form>`);
+  $('#fa').onsubmit = async e => { e.preventDefault(); try { await api({ tipo: 'aviso', aviso: e.target.aviso.value.trim() }); cerrarModal(); toast('Aviso guardado'); cargar(true); } catch (err) { toast(err.message, true); } };
+}
+$('#avisoEd').onclick = editarAviso; $('#avisoAdd').onclick = editarAviso;
+
+$('#csv').onclick = () => {
+  const rows = [['Categoría', 'Artículo', 'Marca', 'Detalle', 'Cantidad', 'Unidad', 'Estado', 'Nota', 'Actualizado', 'Por']]
+    .concat(filtrados().map(i => [i.categoria, i.nombre, i.marca, i.detalle, i.cantidad, i.unidad, ESTXT[estado(i)], i.nota, i.actualizado_en, i.actualizado_por]));
+  const csv = '﻿' + rows.map(r => r.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(';')).join('\r\n');
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+  a.download = `Inventario AJE ${new Date().toISOString().slice(0, 10)}.csv`; a.click();
+};
+
+/* ---------------- Arranque ---------------- */
+(async () => {
+  if (DEMO) { $('#demo').hidden = false; await new Promise(r => { const s = document.createElement('script'); s.src = 'demo.js'; s.onload = r; document.head.appendChild(s); }); }
+  try { S = JSON.parse(localStorage.getItem(SK)); } catch (e) { S = null; }
+  if (S?.token) iniciar(); else mostrarLogin();
+})();
+</script>
+</body>
+</html>
