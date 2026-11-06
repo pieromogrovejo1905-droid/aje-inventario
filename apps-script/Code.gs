@@ -104,15 +104,22 @@ function setup() {
     const h = ss.getSheetByName(n);
     if (h && ss.getSheets().length > 1) ss.deleteSheet(h);
   });
+  // Si la carga inicial quedó a medias (y nadie ha movido stock aún), se rehace completa.
+  const hi = ss.getSheetByName('Items');
+  if (leer_('Items').length < SEMILLA.length && leer_('Movimientos').length === 0 && hi.getLastRow() > 1) {
+    hi.deleteRows(2, hi.getLastRow() - 1);
+  }
   if (leer_('Items').length === 0) {
     const ahora = ahora_();
-    SEMILLA.forEach(function (s, i) {
-      agregar_('Items', {
+    const filas = SEMILLA.map(function (s, i) {
+      const o = {
         id: 'it' + ('00' + (i + 1)).slice(-3), categoria: s[0], nombre: s[1], marca: s[2], detalle: s[3] || '',
         cantidad: s[4] || 0, stock_anterior: s[5] === undefined ? '' : s[5], unidad: s[6] || 'unid.', nota: s[7] || '',
         foto: s[8] || '', activo: 'SI', actualizado_en: ahora.fecha + ' ' + ahora.hora, actualizado_por: 'Carga inicial (Excel nov.)',
-      });
+      };
+      return ESQUEMA.Items.map(function (k) { return o[k]; });
     });
+    hi.getRange(2, 1, filas.length, ESQUEMA.Items.length).setValues(filas);
   }
   if (leer_('Usuarios').length === 0) {
     agregar_('Usuarios', { usuario: 'free', clave: claveAleatoria_(), rol: 'free', nombre: 'Equipo Free', activo: 'SI' });
